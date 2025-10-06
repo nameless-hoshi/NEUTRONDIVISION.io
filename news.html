@@ -17,19 +17,18 @@
     </head>
     <body>
         <div style="height: 5000px; overflow-y: scroll;">
-            <div class="UPPERBAR">
-                <div class="UB2">
-                    <a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/">
-                        <img src="img/logo.png" title="home" style="width:150px; height:150px;">
-                    </a>
-                </div>
-                <ui class="UB1">
-                    <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/info" title="what about us">INFO</a></li>
-                    <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/philosophy" title="our philosophy">OUR PHILOSOPHY</a></li>
-                    <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/news" title="news">NEWS</a></li>
-                    <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/creation" title="creation">CREATION</a></li>
-                    <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/hero" title="hero">HERO</a></li>
-                </ui>
+            <div class="UB2">
+                <a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/">
+                <img src="img/logo.png" title="home" style="width:150px; height:150px;">
+                </a>
+            </div>
+            <ul class="UB1">
+                <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/info" title="what about us">INFO</a></li>
+                <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/philosophy" title="our philosophy">OUR PHILOSOPHY</a></li>
+                <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/news" title="news">NEWS</a></li>
+                <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/creation" title="creation">CREATION</a></li>
+                <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/hero" title="hero">HERO</a></li>
+            </ul>
             </div>
         </div>
 
@@ -79,17 +78,20 @@
           const snap = await getDocs(q);
           const postsDiv = document.getElementById('posts');
           postsDiv.innerHTML = "";
-          snap.forEach(doc => {
-            const p = doc.data();
-            const dateStr = p.createdAt ? new Date(p.createdAt).toLocaleString() : (p.time || "");
+          snap.forEach(docSnap => {
+            const p = docSnap.data();
+            const id = docSnap.id;
             postsDiv.innerHTML += `
-            <div class="post">
+                <div class="post">
                 <h3>${p.title}</h3>
                 <p>${p.content}</p>
                 <small>${p.time}</small>
-                <button onclick="deletePost('${docSnap.id}')" style="background:#e11d48;color:white;border:none;padding:5px 10px;border-radius:5px;">삭제</button>
-            </div>`;
-          });
+                <button onclick="deletePost('${id}')" 
+                        style="background:#e11d48;color:white;border:none;padding:5px 10px;border-radius:5px;">
+                    삭제
+                </button>
+                </div>`;
+            });
         } catch(e) {
           console.error("loadPosts error:", e);
           document.getElementById('status').textContent = "글 불러오기 실패: " + (e.message || e);
@@ -132,6 +134,7 @@
     loadPosts(); // 다시 목록 새로고침
   }
 }
+//danke chat gpt
   </script>
         
     </body>
