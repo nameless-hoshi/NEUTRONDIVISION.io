@@ -66,73 +66,61 @@
     // Initialize Firebase
 
     // init
-    try {
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      document.getElementById('status').textContent = ''; // 초기 상태 제거
+async function loadPosts() {
+  try {
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    const postsDiv = document.getElementById("posts");
+    postsDiv.innerHTML = ""; // 초기화
 
-      // 글 불러오기 (createdAt 숫자 타임스탬프 사용 -> 정렬 정확)
-      async function loadPosts(){
-        try {
-          const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-          const snap = await getDocs(q);
-          const postsDiv = document.getElementById('posts');
-          postsDiv.innerHTML = "";
-          snap.forEach(docSnap => {
-            const p = docSnap.data();
-            const id = docSnap.id;
-            postsDiv.innerHTML += `
-                <div class="post">
-                <h3>${p.title}</h3>
-                <p>${p.content}</p>
-                <small>${p.time}</small>
-                <button onclick="deletePost('${id}')" 
-                        style="background:#e11d48;color:white;border:none;padding:5px 10px;border-radius:5px;">
-                    삭제
-                </button>
-                </div>`;
-            });
-        } catch(e) {
-          console.error("loadPosts error:", e);
-          document.getElementById('status').textContent = "글 불러오기 실패: " + (e.message || e);
-        }
-      }
+    snap.forEach(docSnap => {
+      const p = docSnap.data();
+      const id = docSnap.id;
 
-      // 글쓰기
-      document.getElementById('postBtn').addEventListener('click', async () => {
-        const title = document.getElementById('title').value.trim();
-        const content = document.getElementById('content').value.trim();
-        if (!title || !content) return alert('제목과 내용을 입력하세요.');
+      // DOM 요소 생성 (문자열 조합 대신)
+      const postEl = document.createElement('div');
+      postEl.className = 'post';
+
+      const titleEl = document.createElement('h3');
+      titleEl.innerText = p.title || '(제목 없음)';
+      postEl.appendChild(titleEl);
+
+      const contentEl = document.createElement('p');
+      contentEl.innerHTML = (escapeHtml(p.content) || '').replace(/\n/g, '<br>');
+      postEl.appendChild(contentEl);
+
+      const timeEl = document.createElement('small');
+      timeEl.innerText = p.time || (p.createdAt ? new Date(p.createdAt).toLocaleString() : '');
+      postEl.appendChild(timeEl);
+
+      // 삭제 버튼 (이벤트 리스너 방식)
+      const delBtn = document.createElement('button');
+      delBtn.innerText = '삭제';
+      delBtn.className = 'deleteBtn';
+      delBtn.addEventListener('click', async () => {
+        if (!confirm('정말 이 글을 삭제하시겠습니까?')) return;
         try {
-          await addDoc(collection(db, "posts"), {
-            title, content, createdAt: Date.now()
-          });
-          document.getElementById('title').value = "";
-          document.getElementById('content').value = "";
+          await deleteDoc(doc(db, 'posts', id));
+          // 삭제 성공 시 UI 갱신
           loadPosts();
-        } catch(e){
-          console.error("addDoc error:", e);
-          document.getElementById('status').textContent = "전송 실패: " + (e.message || e);
+        } catch (err) {
+          console.error('delete error', err);
+          alert('삭제 실패: ' + (err.message || err));
         }
       });
+      postEl.appendChild(delBtn);
 
-      // 간단 XSS 방지용 escape
-      function escapeHtml(str){
-        return (str+'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-      }
-
-      // 초기 로드
-      loadPosts();
-    } catch(initErr){
-      console.error("init error:", initErr);
-      document.getElementById('status').textContent = "초기화 실패: " + (initErr.message || initErr);
-    }
-    window.deletePost = async function(id) {
-  if (confirm("정말 삭제하시겠습니까?")) {
-    await deleteDoc(doc(db, "posts", id));
-    alert("삭제 완료!");
-    loadPosts(); // 다시 목록 새로고침
+      postsDiv.appendChild(postEl);
+    });
+  } catch (e) {
+    console.error('loadPosts error', e);
+    document.getElementById('status') && (document.getElementById('status').textContent = '글 불러오기 실패: ' + (e.message || e));
   }
+}
+
+// XSS 대비 간단 escape
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 //danke chat gpt
   </script>
