@@ -36,20 +36,19 @@
 
 
         <div class="wrap">
-            <h1>간단한 Firebase 게시판</h1>
+            <h1>댓글</h1>
             <div id="status" class="err"></div>
-            <input id="title" placeholder="제목" />
+            <input id="title" placeholder="아이디" />
             <textarea id="content" rows="6" placeholder="내용"></textarea>
-            <button id="postBtn">글 올리기</button>
+            <button id="postBtn">글 쓰기</button>
             <hr/>
             <div id="posts"></div>
         </div>
 
           <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, getDocs, query, orderBy
-    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } 
+    from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
     // Import the functions you need from the SDKs you need
     // TODO: Add SDKs for Firebase products that you want to use
@@ -84,11 +83,12 @@
             const p = doc.data();
             const dateStr = p.createdAt ? new Date(p.createdAt).toLocaleString() : (p.time || "");
             postsDiv.innerHTML += `
-              <div class="post">
-                <h3>${escapeHtml(p.title)}</h3>
-                <p>${escapeHtml(p.content).replace(/\n/g, '<br>')}</p>
-                <small>${dateStr}</small>
-              </div>`;
+            <div class="post">
+                <h3>${p.title}</h3>
+                <p>${p.content}</p>
+                <small>${p.time}</small>
+                <button onclick="deletePost('${docSnap.id}')" style="background:#e11d48;color:white;border:none;padding:5px 10px;border-radius:5px;">삭제</button>
+            </div>`;
           });
         } catch(e) {
           console.error("loadPosts error:", e);
@@ -125,6 +125,13 @@
       console.error("init error:", initErr);
       document.getElementById('status').textContent = "초기화 실패: " + (initErr.message || initErr);
     }
+    window.deletePost = async function(id) {
+  if (confirm("정말 삭제하시겠습니까?")) {
+    await deleteDoc(doc(db, "posts", id));
+    alert("삭제 완료!");
+    loadPosts(); // 다시 목록 새로고침
+  }
+}
   </script>
         
     </body>
