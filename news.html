@@ -133,22 +133,30 @@
 
     // 글 작성
     document.getElementById("postBtn").onclick = async () => {
-      const title = document.getElementById("title").value.trim();
-      const content = document.getElementById("content").value.trim();
-      const password = document.getElementById("password").value.trim();
-      if (!title || !content || !password) return alert("제목, 내용, 비밀번호를 입력하세요!");
+    const title = document.getElementById("title").value.trim();
+    const content = document.getElementById("content").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-      await addDoc(collection(db, "posts"), {
+    if (!title || !content || !password) {
+        return alert("제목, 내용, 비밀번호를 모두 입력해주세요!");
+    }
+
+    try {
+        await addDoc(collection(db, "posts"), {
         title,
         content,
         password,
         time: new Date().toLocaleString()
-      });
-
-      document.getElementById("title").value = "";
-      document.getElementById("content").value = "";
-      document.getElementById("password").value = "";
-      loadPosts();
+        });
+        // 입력 초기화
+        document.getElementById("title").value = "";
+        document.getElementById("content").value = "";
+        document.getElementById("password").value = "";
+        loadPosts();
+    } catch (e) {
+        console.error("글 저장 실패", e);
+        alert("글 저장 실패: " + (e.message || e));
+    }
     };
 
     loadPosts();
