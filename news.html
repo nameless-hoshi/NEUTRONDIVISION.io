@@ -5,11 +5,18 @@
         <link href="styles/style.css" rel="stylesheet" type="text/css" />
         <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"></script>
         <style>
-            body { font-family: sans-serif; margin: 40px; }
-            input, textarea { width: 100%; margin: 5px 0; padding: 10px; }
-            button { padding: 8px 15px; }
-            .post { border-bottom: 1px solid #ccc; margin-top: 10px; padding-bottom: 10px; }
+            body { font-family: "Pretendard", sans-serif; margin: 40px; background: #f8f8f8; }
+            h1 { text-align: center; }
+            .board { max-width: 600px; margin: auto; }
+            input, textarea { width: 100%; margin: 5px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+            button { padding: 10px 15px; background: #333; color: white; border: none; border-radius: 5px; cursor: pointer; }
+            button:hover { background: #555; }
+            .post { background: white; padding: 15px; margin: 10px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+            .post h3 { margin: 0 0 5px 0; }
+            .post small { color: gray; }
         </style>
     </head>
     <body>
@@ -31,12 +38,72 @@
         </div>
 
 
-        <h1>간단 게시판</h1>
-        <input id="title" placeholder="제목">
-        <textarea id="content" placeholder="내용"></textarea>
-        <button onclick="savePost()">글 올리기</button>
-        <hr>
-        <div id="posts"></div>
-        <script src="script.js"></script>
+        <h1>🔥 Firebase 게시판</h1>
+        <div class="board">
+            <input id="title" placeholder="제목">
+            <textarea id="content" placeholder="내용"></textarea>
+            <button id="postBtn">글 올리기</button>
+            <hr>
+            <div id="posts"></div>
+        </div>
+        <script type="module">
+
+
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy } 
+      from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAisg8efEgG-n63thSqWtvW2d2lqUEe7Dw",
+            authDomain: "neutrondivision.firebaseapp.com",
+            projectId: "neutrondivision",
+            storageBucket: "neutrondivision.firebasestorage.app",
+            messagingSenderId: "679702672783",
+            appId: "1:679702672783:web:714b0e3775d3e1083fc7fa"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadPosts() {
+      const q = query(collection(db, "posts"), orderBy("time", "desc"));
+      const snap = await getDocs(q);
+      const postsDiv = document.getElementById("posts");
+      postsDiv.innerHTML = "";
+      snap.forEach(doc => {
+        const p = doc.data();
+        postsDiv.innerHTML += `
+          <div class="post">
+            <h3>${p.title}</h3>
+            <p>${p.content}</p>
+            <small>${p.time}</small>
+          </div>`;
+      });
+    }
+
+    document.getElementById("postBtn").onclick = async () => {
+      const title = document.getElementById("title").value.trim();
+      const content = document.getElementById("content").value.trim();
+      if (!title || !content) return alert("제목과 내용을 입력하세요!");
+      await addDoc(collection(db, "posts"), { 
+        title, 
+        content, 
+        time: new Date().toLocaleString() 
+      });
+      document.getElementById("title").value = "";
+      document.getElementById("content").value = "";
+      loadPosts();
+    };
+
+    loadPosts();
+        </script>
+        
     </body>
 </html>
