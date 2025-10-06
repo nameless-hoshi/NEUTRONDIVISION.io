@@ -13,16 +13,16 @@
   <div style="height: 5000px; overflow-y: scroll; background-image: url(img/flag.jpg); background-repeat: no-repeat; background-size: 1700px 850px;">
     <div class="UPPERBAR">
       <div class="UB2">
-        <a href="https://tsukinamiseikai-neutrondivision.github.io/">
+        <a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/">
           <img src="img/logo.png" title="home" style="width:150px; height:150px;">
         </a>
       </div>
       <ul class="UB1">
-        <li><a href="https://tsukinamiseikai-neutrondivision.github.io/info" title="what about us">INFO</a></li>
-        <li><a href="https://tsukinamiseikai-neutrondivision.github.io/philosophy" title="our philosophy">OUR PHILOSOPHY</a></li>
-        <li><a href="https://tsukinamiseikai-neutrondivision.github.io/news" title="news">NEWS</a></li>
-        <li><a href="https://tsukinamiseikai-neutrondivision.github.io/creation" title="creation">CREATION</a></li>
-        <li><a href="https://tsukinamiseikai-neutrondivision.github.io/hero" title="hero">HERO</a></li>
+        <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/info" title="what about us">INFO</a></li>
+        <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/philosophy" title="our philosophy">OUR PHILOSOPHY</a></li>
+        <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/news" title="news">NEWS</a></li>
+        <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/creation" title="creation">CREATION</a></li>
+        <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/hero" title="hero">HERO</a></li>
       </ul>
     </div>
 
@@ -62,7 +62,7 @@
       <h3>SATISFACTION - LIBERTY - PURIFICATION</h3>
       <h5>What About Us?</h5>
       <p>We are <b>NEUTRON DIVISION</b></p>
-      <p>After The birth of us, The pain start to attack us. we feel the pain until we are dead. but, why didn't blame it?</p>
+      <p>After The birth of us, We face OUR ENEMY. THEY always attack and ruin our life</p>
       <p>We are not just neighborhood neo-nazi or individualist anarchist. We researched and investigated how we stop the pain.</p>
       <p>Finally, It approached uncomfortable truth.</p>
       <p>Don't afraid or ignore it. We behave for real liberty, our neighbor and mankind.</p>
@@ -85,11 +85,17 @@
     <br>
     <br>
     <br>
+    <div class="wrap" style="text-align: center;">
+      <h1><strong>CHECK OUR NEWS</strong></h1>
+      <h3>Don't believe other news.</h3>
+      <h3>They're just puppet of politian, religion and stranger</h3>
+      <li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/news" title="news">NEWS</a></li>
+    </div>
     <br>
     <br>
     <br>
     <br>
-    <div>
+    <div class="wrap" style="text-align: center;">
         <h1>NEW FLAG.</h1>
         <p>3 Lines symbolize the 3 elements(government, company and others)</p>
         <p>One line penetrating and 2 lines attached it symbolize braking them</p>
@@ -100,53 +106,71 @@
   </div>
 
   <script>
-    const scroller = document.getElementById('scroller');
-    const btnPrev = document.getElementById('btnPrev');
-    const btnNext = document.getElementById('btnNext');
+      document.querySelectorAll('.SCROLLPOSTER').forEach(container => {
+      const scroller = container.querySelector('.scroll-container');
+      const btnPrev = container.querySelector('.btn-left');
+      const btnNext = container.querySelector('.btn-right');
+      if (!scroller) return;
 
-    let isDown = false;
-    let startX;
-    let scrollLeftStart;
+      let isDown = false;
+      let startX = 0;
+      let scrollLeftStart = 0;
 
-    scroller.addEventListener('pointerdown', (e) => {
-      isDown = true;
-      scroller.style.cursor = 'grabbing';
-      startX = e.clientX;
-      scrollLeftStart = scroller.scrollLeft;
-      scroller.setPointerCapture(e.pointerId);
-    });
 
-    scroller.addEventListener('pointermove', (e) => {
-      if (!isDown) return;
-      const dx = e.clientX - startX;
-      scroller.scrollLeft = scrollLeftStart - dx;
-    });
+      scroller.addEventListener('pointerdown', e => {
+        isDown = true;
+        scroller.style.cursor = 'grabbing';
+        startX = e.clientX;
+        scrollLeftStart = scroller.scrollLeft;
+        if (scroller.setPointerCapture) scroller.setPointerCapture(e.pointerId);
+      });
 
-    function stopDrag(e){
-      if(!isDown) return;
-      isDown = false;
-      scroller.style.cursor = 'grab';
-      try{ scroller.releasePointerCapture && scroller.releasePointerCapture(e && e.pointerId); }catch(e){}
-    }
-    scroller.addEventListener('pointerup', stopDrag);
-    scroller.addEventListener('pointercancel', stopDrag);
-    scroller.addEventListener('pointerleave', stopDrag);
+      scroller.addEventListener('pointermove', e => {
+        if (!isDown) return;
+        const dx = e.clientX - startX;
+        scroller.scrollLeft = scrollLeftStart - dx;
+      });
 
-    scroller.addEventListener('wheel', (e) => {
-      if (Math.abs(e.deltaY) > 0) {
-        e.preventDefault();
-        scroller.scrollLeft += e.deltaY;
+      const stopDrag = e => {
+        if (!isDown) return;
+        isDown = false;
+        scroller.style.cursor = 'grab';
+        try { scroller.releasePointerCapture(e.pointerId); } catch {}
+      };
+      scroller.addEventListener('pointerup', stopDrag);
+      scroller.addEventListener('pointercancel', stopDrag);
+      scroller.addEventListener('pointerleave', stopDrag);
+
+
+      scroller.addEventListener('wheel', e => {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+          
+          e.preventDefault();
+          scroller.scrollLeft += e.deltaX;
+        }
+      }, { passive: false });
+
+
+      function cardWidth() {
+        const card = scroller.querySelector('.poster-card');
+        const gap = parseFloat(getComputedStyle(scroller).gap) || 16;
+        return (card ? card.getBoundingClientRect().width : 500) + gap;
       }
-    }, { passive: false });
+      btnPrev.addEventListener('click', () => scroller.scrollBy({ left: -cardWidth(), behavior: 'smooth' }));
+      btnNext.addEventListener('click', () => scroller.scrollBy({ left:  cardWidth(), behavior: 'smooth' }));
 
-    function cardWidth(){
-      const card = scroller.querySelector('.poster-card');
-      const gap = parseInt(getComputedStyle(scroller).gap || 16);
-      return (card ? card.offsetWidth : 500) + gap;
-    }
 
-    btnPrev.addEventListener('click', ()=> scroller.scrollBy({left: -cardWidth(), behavior:'smooth'}));
-    btnNext.addEventListener('click', ()=> scroller.scrollBy({left:  cardWidth(), behavior:'smooth'}));
+      setInterval(() => {
+        const card = scroller.querySelector('.poster-card');
+        const gap = parseFloat(getComputedStyle(scroller).gap) || 16;
+        const cardWidth = (card ? card.getBoundingClientRect().width : 500) + gap;
+        scroller.scrollBy({ left: cardWidth, behavior: 'smooth' });
+
+        if (scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 5) {
+          scroller.scrollTo({ left: 0, behavior: 'smooth' });
+        }
+      }, 5000);
+    });
   </script>
 </body>
 </html>
