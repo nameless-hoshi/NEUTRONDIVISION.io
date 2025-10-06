@@ -39,6 +39,7 @@
             <div id="status" class="err"></div>
             <input id="title" placeholder="아이디" />
             <textarea id="content" rows="6" placeholder="내용"></textarea>
+            <input id="password" type="password" placeholder="삭제용 비밀번호">
             <button id="postBtn">글 쓰기</button>
             <hr/>
             <div id="posts"></div>
@@ -66,62 +67,91 @@
     // Initialize Firebase
 
     // init
-async function loadPosts() {
-  try {
-    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
-    const postsDiv = document.getElementById("posts");
-    postsDiv.innerHTML = ""; // 초기화
+    // XSS 방지용 escape
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
 
-    snap.forEach(docSnap => {
-      const p = docSnap.data();
-      const id = docSnap.id;
+    // 글 불러오기 + 삭제 버튼 이벤트
+    async function loadPosts() {
+      try {
+        const q = query(collection(db, "posts"), orderBy("time", "desc"));
+        const snap = await getDocs(q);
+        const postsDiv = document.getElementById("posts");
+        postsDiv.innerHTML = "";
 
-      // DOM 요소 생성 (문자열 조합 대신)
-      const postEl = document.createElement('div');
-      postEl.className = 'post';
+        snap.forEach(docSnap => {
+          const p = docSnap.data();
+          const id = docSnap.id;
 
-      const titleEl = document.createElement('h3');
-      titleEl.innerText = p.title || '(제목 없음)';
-      postEl.appendChild(titleEl);
+          const postEl = document.createElement('div');
+          postEl.className = 'post';
 
-      const contentEl = document.createElement('p');
-      contentEl.innerHTML = (escapeHtml(p.content) || '').replace(/\n/g, '<br>');
-      postEl.appendChild(contentEl);
+          const titleEl = document.createElement('h3');
+          titleEl.innerText = p.title || '(제목 없음)';
+          postEl.appendChild(titleEl);
 
-      const timeEl = document.createElement('small');
-      timeEl.innerText = p.time || (p.createdAt ? new Date(p.createdAt).toLocaleString() : '');
-      postEl.appendChild(timeEl);
+          const contentEl = document.createElement('p');
+          contentEl.innerHTML = (escapeHtml(p.content) || '').replace(/\n/g, '<br>');
+          postEl.appendChild(contentEl);
 
-      // 삭제 버튼 (이벤트 리스너 방식)
-      const delBtn = document.createElement('button');
-      delBtn.innerText = '삭제';
-      delBtn.className = 'deleteBtn';
-      delBtn.addEventListener('click', async () => {
-        if (!confirm('정말 이 글을 삭제하시겠습니까?')) return;
-        try {
-          await deleteDoc(doc(db, 'posts', id));
-          // 삭제 성공 시 UI 갱신
-          loadPosts();
-        } catch (err) {
-          console.error('delete error', err);
-          alert('삭제 실패: ' + (err.message || err));
-        }
+          const timeEl = document.createElement('small');
+          timeEl.innerText = p.time || '';
+          postEl.appendChild(timeEl);
+
+          // 삭제 버튼 + 비밀번호 확인
+          const delBtn = document.createElement('button');
+          delBtn.innerText = '삭제';
+          delBtn.className = 'deleteBtn';
+          delBtn.addEventListener('click', async () => {
+            const inputPwd = prompt("삭제하려면 비밀번호를 입력하세요:");
+            if (!inputPwd) return;
+
+            try {
+              const docRef = doc(db, "posts", id);
+              const docSnap2 = await getDoc(docRef);
+              if (!docSnap2.exists()) return alert("글이 존재하지 않습니다.");
+              const storedPwd = docSnap2.data().password;
+              if (inputPwd !== storedPwd) return alert("비밀번호가 틀립니다!");
+
+              await deleteDoc(docRef);
+              alert("삭제 완료!");
+              loadPosts();
+            } catch(e) {
+              console.error(e);
+              alert("삭제 실패: " + (e.message || e));
+            }
+          });
+
+          postEl.appendChild(delBtn);
+          postsDiv.appendChild(postEl);
+        });
+      } catch (e) {
+        console.error('loadPosts error', e);
+      }
+    }
+
+    // 글 작성
+    document.getElementById("postBtn").onclick = async () => {
+      const title = document.getElementById("title").value.trim();
+      const content = document.getElementById("content").value.trim();
+      const password = document.getElementById("password").value.trim();
+      if (!title || !content || !password) return alert("제목, 내용, 비밀번호를 입력하세요!");
+
+      await addDoc(collection(db, "posts"), {
+        title,
+        content,
+        password,
+        time: new Date().toLocaleString()
       });
-      postEl.appendChild(delBtn);
 
-      postsDiv.appendChild(postEl);
-    });
-  } catch (e) {
-    console.error('loadPosts error', e);
-    document.getElementById('status') && (document.getElementById('status').textContent = '글 불러오기 실패: ' + (e.message || e));
-  }
-}
+      document.getElementById("title").value = "";
+      document.getElementById("content").value = "";
+      document.getElementById("password").value = "";
+      loadPosts();
+    };
 
-// XSS 대비 간단 escape
-function escapeHtml(str) {
-  return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
+    loadPosts();
 //danke chat gpt
   </script>
         
