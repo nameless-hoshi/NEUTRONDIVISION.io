@@ -138,7 +138,7 @@
       <p>Day May 19th is Resistance Day</p>
       <p>We are sorry for their loss.</p>
       <p>all martyr's blood is priceless</p>
-      <P><strong><li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/hero#target1" title="hero">CHECK RIGHT NOW</a></li></strong></P>
+      <P><strong><li><a href="https://nameless-hoshi.github.io/NEUTRONDIVISION.io/hero#target1" onclick="scrollToTarget()" title="hero">CHECK RIGHT NOW</a></li></strong></P>
     </div>
 
     <div herf="#joinus" style="text-align: center;">
@@ -146,6 +146,14 @@
     </div>
 
   <script>
+      function scrollToTarget() {
+      const target = document.getElementById("target1");
+      if (!target) return;
+
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+
       document.querySelectorAll('.SCROLLPOSTER').forEach(container => {
       const scroller = container.querySelector('.scroll-container');
       const btnPrev = container.querySelector('.btn-left');
