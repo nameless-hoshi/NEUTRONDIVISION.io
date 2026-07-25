@@ -1,18 +1,19 @@
-    .UPPERBAR{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:8px 24px;
-      background:rgba(255,255,255,0.8);
-      position:sticky;
-      top:0;
-      backdrop-filter: blur(8px);
-    }
-    .UB1{display:flex;list-style:none;gap:24px;margin:0;padding:0;}
-    .UB1 li a{text-decoration:none;color:#222;font-weight:600}
-    .UB1 li a:hover{text-decoration:underline}
+.UPPERBAR{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 24px;
+  background:rgba(255,255,255,0.8);
+  position:sticky;
+  top:0;
+  backdrop-filter: blur(8px);
+  z-index: 100;
+}
+.UB1{display:flex;list-style:none;gap:24px;margin:0;padding:0;}
+.UB1 li a{text-decoration:none;color:#222;font-weight:600}
+.UB1 li a:hover{text-decoration:underline}
 
-    .wrap{max-width:1200px;margin:0 auto;padding:24px}
+.wrap{max-width:1200px;margin:0 auto;padding:24px}
 
 .SCROLLPOSTER { position: relative; margin-top: 40px; }
 
@@ -28,7 +29,6 @@
   scroll-snap-type:x mandatory;
   cursor:grab;
   user-select:none;
-  touch-action: pan-y;
 }
 
 .poster-card{
@@ -63,23 +63,11 @@
 .scroll-container::-webkit-scrollbar{ height:10px }
 .scroll-container::-webkit-scrollbar-thumb{ border-radius:6px; background:rgba(0,0,0,0.12) }
 
-
-
+/* 잘못된 font-weight: weight를 정상적인 값으로 수정 */
 * {
   font-family: "Zalando Sans", sans-serif;
   font-optical-sizing: auto;
-  font-weight: weight;
+  font-weight: 400;
   font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
-}
-
-
-* {
-  font-family: "Zalando Sans", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: weight;
-  font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
+  font-variation-settings: "wdth" 100;
 }
